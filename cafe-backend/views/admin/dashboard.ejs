@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
+  <style>
+    body {
+      background: #eef1f6;
+      font-family: 'Poppins', sans-serif;
+      color: #2e2e2e;
+    }
+
+    h2 {
+      font-weight: 700;
+      color: #2f3e46;
+      margin-bottom: 25px;
+    }
+
+    /* Stats Section */
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 25px;
+    }
+
+    .stat-card {
+      background: linear-gradient(145deg, #ffffff, #f0f3f8);
+      border-radius: 18px;
+      padding: 25px;
+      box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.1),
+                  -5px -5px 15px rgba(255, 255, 255, 0.8);
+      text-align: center;
+      transition: all 0.4s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stat-card::before {
+      content: "";
+      position: absolute;
+      top: -40%;
+      left: -40%;
+      width: 200%;
+      height: 200%;
+      background: rgba(0, 123, 255, 0.05);
+      transform: rotate(45deg);
+    }
+
+    .stat-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0px 10px 20px rgba(0,0,0,0.15);
+    }
+
+    .stat-icon {
+      font-size: 2.5rem;
+      margin-bottom: 15px;
+      color: #007bff;
+    }
+
+    .stat-title {
+      font-size: 15px;
+      font-weight: 500;
+      color: #6c757d;
+      margin-bottom: 5px;
+    }
+
+    .stat-value {
+      font-size: 30px;
+      font-weight: 700;
+      color: #212529;
+    }
+
+    /* Chart Section */
+    .card {
+      border-radius: 20px;
+      background: #fff;
+      border: none;
+      padding: 30px;
+      box-shadow: 0px 8px 25px rgba(0, 0, 0, 0.1);
+    }
+
+    .card h5 {
+      font-weight: 600;
+      color: #212529;
+      margin-bottom: 15px;
+    }
+
+    canvas {
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <%- include('partials/navbar', { active: 'dashboard' }) %>
+
+  <div class="container mt-5">
+    <h2>Welcome back 👋 Admin</h2>
+
+    <!-- Stats Section -->
+    <div class="stat-grid mb-5">
+      <div class="stat-card">
+        <i class="fas fa-layer-group stat-icon text-primary"></i>
+        <div class="stat-title">Categories</div>
+        <div class="stat-value" id="statCategories">--</div>
+      </div>
+      <div class="stat-card">
+        <i class="fas fa-list stat-icon text-success"></i>
+        <div class="stat-title">Subcategories</div>
+        <div class="stat-value" id="statSubcategories">--</div>
+      </div>
+      <div class="stat-card">
+        <i class="fas fa-box-open stat-icon text-warning"></i>
+        <div class="stat-title">Items</div>
+        <div class="stat-value" id="statItems">--</div>
+      </div>
+    </div>
+
+    <!-- Chart Section -->
+    <div class="card">
+      <h5><i class="fas fa-chart-bar me-2 text-info"></i> Inventory Overview</h5>
+      <canvas id="overviewChart" height="120"></canvas>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script>
+    async function fetchCounts() {
+      try {
+        const res = await fetch('/admin/stats');
+        const data = await res.json();
+
+        document.getElementById('statCategories').textContent = data.categoryCount ?? '—';
+        document.getElementById('statSubcategories').textContent = data.subcategoryCount ?? '—';
+        document.getElementById('statItems').textContent = data.itemCount ?? '—';
+
+        if (window.overviewChart) {
+          overviewChart.data.datasets[0].data = [data.categoryCount, data.subcategoryCount, data.itemCount];
+          overviewChart.update();
+        }
+      } catch(e) {
+        console.error(e);
+      }
+    }
+
+    fetchCounts();
+
+    const ctx = document.getElementById('overviewChart');
+    window.overviewChart = new Chart(ctx,{
+      type:'bar',
+      data:{
+        labels:['Categories','Subcategories','Items'],
+        datasets:[{
+          label:'Count',
+          data:[0,0,0],
+          backgroundColor:['#007bff','#28a745','#ffc107'],
+          borderRadius: 10
+        }]
+      },
+      options:{
+        plugins:{
+          legend:{labels:{color:'#374151', font:{size:14}}}
+        },
+        scales:{
+          x:{ticks:{color:'#6b7280', font:{size:13}}},
+          y:{ticks:{color:'#6b7280', font:{size:13}}}
+        }
+      }
+    });
+  </script>
+
+</body>
+</html>

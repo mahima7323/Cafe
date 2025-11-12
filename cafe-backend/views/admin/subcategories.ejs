@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subcategory Management</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <%- include('partials/navbar') %>
+
+    <div class="container mt-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>Subcategory Management</h2>
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addSubcategoryModal">
+                <i class="fas fa-plus"></i> Add Subcategory
+            </button>
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th class="text-primary fw-bold">Name</th>
+                            <th class="text-primary fw-bold">Category</th>
+                            <th class="text-primary fw-bold">Created At</th>
+                            <th class="text-primary fw-bold">Image</th>
+                            <th class="text-primary fw-bold">Status</th>
+                            <th class="text-primary fw-bold">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% subcategories.forEach(subcat => { %>
+                            <tr>
+                                <td><%= subcat.name %></td>
+                                <td><%= subcat.category_name %></td>
+
+                                <!-- <td><%= subcat.categoryName %></td> -->
+                                <td><%= new Date(subcat.created_at).toLocaleDateString() %></td>
+                                <td>
+                                    <% if (subcat.image) { %>
+                                        <img src="<%= subcat.image %>" alt="<%= subcat.name %>" 
+                                             style="max-width: 100px; max-height: 100px; object-fit: cover;"
+                                             onerror="this.src='/images/no-image.png'; this.onerror=null;">
+                                    <% } else { %>
+                                        No image
+                                    <% } %>
+                                </td>
+                                <td>
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input status-toggle" type="checkbox" 
+                                               data-id="<%= subcat.id %>"
+                                               <%= subcat.status === 'active' ? 'checked' : '' %>>
+                                        <label class="form-check-label"><%= subcat.status %></label>
+                                    </div>
+                                </td>
+                                <td>
+                                    <button class="btn btn-sm btn-info view-btn" data-bs-toggle="modal" data-bs-target="#viewSubCategoryModal" 
+                                        data-id="<%= subcat.id %>" 
+                                        data-name="<%= subcat.name %>"
+                                        data-image="<%= subcat.image %>">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-warning edit-btn" data-id="<%= subcat.id %>" data-name="<%= subcat.name %>" data-image="<%= subcat.image %>">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-danger delete-btn" data-id="<%= subcat.id %>">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        <% }) %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Subcategory Modal -->
+    <div class="modal fade" id="addSubcategoryModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add New Subcategory</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addSubcategoryForm" enctype="multipart/form-data" onsubmit="return false" novalidate>
+                        <div class="mb-3">
+                            <label class="form-label">Category</label>
+                            <select class="form-select" name="category_id" required>
+                                <option value="">Select Category</option>
+                                <% categories.forEach(category => { %>
+                                    <option value="<%= category.id %>"><%= category.name %></option>
+                                <% }) %>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Subcategory Name</label>
+                            <input type="text" class="form-control" name="name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Image</label>
+                            <input type="file" class="form-control" name="image" accept="image/*">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="saveSubcategory">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Subcategory Modal -->
+    <div class="modal fade" id="editSubcategoryModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Subcategory</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editSubcategoryForm" enctype="multipart/form-data" onsubmit="return false" novalidate>
+                        <input type="hidden" name="id">
+                        <div class="mb-3">
+                            <label class="form-label">Category</label>
+                            <select class="form-select" name="category_id" required>
+                                <option value="">Select Category</option>
+                                <% categories.forEach(category => { %>
+                                    <option value="<%= category.id %>"><%= category.name %></option>
+                                <% }) %>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Subcategory Name</label>
+                            <input type="text" class="form-control" name="name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Image</label>
+                            <input type="file" class="form-control" name="image" accept="image/*">
+                            <div id="currentImage" class="mt-2"></div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="updateSubcategory">Update</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Absolute safety net: block native submits on this page
+        document.addEventListener('submit', (e) => {
+            const id = e.target?.id;
+            if (id === 'addSubcategoryForm' || id === 'editSubcategoryForm') {
+                e.preventDefault();
+                return false;
+            }
+        }, true);
+
+        async function handleCreateSubcategory(event) {
+            if (event) event.preventDefault();
+            const form = document.getElementById('addSubcategoryForm');
+            const formData = new FormData(form);
+
+            try {
+                const response = await fetch('/admin/subcategories', { method: 'POST', body: formData });
+                const data = await response.json();
+                if (data.success) {
+                    const tbody = document.querySelector('table tbody');
+                    const sc = data.subcategory || {};
+                    const row = document.createElement('tr');
+                    const addNameValue = form.querySelector('input[name="name"]').value;
+                    const imgSrc = sc.image
+                        ? (sc.image.startsWith('/') ? sc.image : `/uploads/subcategories/${sc.image}`)
+                        : '';
+                    row.innerHTML = `
+                        <td>${sc.id ?? ''}</td>
+                        <td>${sc.name ?? addNameValue}</td>
+                        <td>${sc.category_name ?? ''}</td>
+                        <td>${sc.created_at ? new Date(sc.created_at).toLocaleDateString() : new Date().toLocaleDateString()}</td>
+                        <td>${imgSrc ? `<img src="${imgSrc}" alt="${sc.name ?? ''}" style="max-width: 100px; max-height: 100px; object-fit: cover;" onerror="this.onerror=null; this.src='/images/placeholder.png'">` : '<span class="text-muted">No image</span>'}</td>
+                        <td>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input status-toggle" type="checkbox" data-id="${sc.id}" ${sc.status === 'active' ? 'checked' : ''}>
+                                <label class="form-check-label">${sc.status || 'inactive'}</label>
+                            </div>
+                        </td>
+                        <td>
+                            <button class="btn btn-sm btn-info view-btn" data-bs-toggle="modal" data-bs-target="#viewSubCategoryModal" 
+                                    data-id="${sc.id}" 
+                                    data-name="${sc.name}"
+                                    data-image="${sc.image}">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="btn btn-sm btn-warning edit-btn" data-id="${sc.id}" data-name="${sc.name}" data-image="${sc.image}"><i class="fas fa-edit"></i></button>
+                            <button class="btn btn-sm btn-danger delete-btn" data-id="${sc.id}"><i class="fas fa-trash"></i></button>
+                        </td>`;
+                    tbody.prepend(row);
+                    form.reset();
+                    document.querySelector('#addSubcategoryModal .btn-close').click();
+                    attachRowHandlers(row);
+                } else {
+                    alert(data.error || 'Failed to add subcategory');
+                }
+            } catch (error) {
+                alert('Failed to add subcategory');
+            }
+        }
+
+        // Prevent default submit (Enter key) and use AJAX
+        document.getElementById('addSubcategoryForm').addEventListener('submit', handleCreateSubcategory);
+        document.getElementById('addSubcategoryForm').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') { e.preventDefault(); }
+        });
+        document.getElementById('saveSubcategory').addEventListener('click', handleCreateSubcategory);
+
+        // Edit subcategory
+        document.querySelectorAll('.edit-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const form = document.getElementById('editSubcategoryForm');
+                form.querySelector('input[name="id"]').value = btn.dataset.id;
+                form.querySelector('input[name="name"]').value = btn.dataset.name;
+                form.querySelector('select[name="category_id"]').value = btn.dataset.category;
+                
+                new bootstrap.Modal(document.getElementById('editSubcategoryModal')).show();
+            });
+        });
+
+        async function handleUpdateSubcategory(event) {
+            if (event) event.preventDefault();
+            const form = document.getElementById('editSubcategoryForm');
+            const formData = new FormData(form);
+
+            try {
+                const subcategoryId = form.querySelector('input[name="id"]').value;
+                const response = await fetch(`/admin/subcategories/${subcategoryId}`, { method: 'PUT', body: formData });
+                const data = await response.json();
+                if (data.success) {
+                    const sc = data.subcategory || {};
+                    const row = [...document.querySelectorAll('table tbody tr')].find(r => r.querySelector('td')?.textContent.trim() === String(sc.id));
+                    if (row) {
+                        const cells = row.querySelectorAll('td');
+                        cells[1].textContent = sc.name ?? cells[1].textContent;
+                        cells[2].textContent = sc.category_name ?? cells[2].textContent;
+                        const imgCell = cells[4];
+                        if (sc.image) {
+                            const imgSrc = sc.image.startsWith('/') ? sc.image : `/uploads/subcategories/${sc.image}`;
+                            imgCell.innerHTML = `<img src="${imgSrc}" alt="${sc.name}" style="max-width: 100px; max-height: 100px; object-fit: cover;" onerror="this.onerror=null; this.src='/images/placeholder.png'">`;
+                        }
+                        const statusInput = row.querySelector('.status-toggle');
+                        const statusLabel = statusInput.nextElementSibling;
+                        if (sc.status) {
+                            statusInput.checked = sc.status === 'active';
+                            statusLabel.textContent = sc.status;
+                        }
+                    }
+                    document.querySelector('#editSubcategoryModal .btn-close').click();
+                } else {
+                    alert(data.error || 'Failed to update subcategory');
+                }
+            } catch (error) {
+                alert('Failed to update subcategory');
+            }
+        }
+
+        // Prevent default submit (Enter key) and use AJAX
+        document.getElementById('editSubcategoryForm').addEventListener('submit', handleUpdateSubcategory);
+        document.getElementById('editSubcategoryForm').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') { e.preventDefault(); }
+        });
+        document.getElementById('updateSubcategory').addEventListener('click', handleUpdateSubcategory);
+
+        // Toggle status
+        document.querySelectorAll('.status-toggle').forEach(toggle => {
+            toggle.addEventListener('change', async (e) => {
+                const id = e.target.dataset.id;
+                const status = e.target.checked ? 'active' : 'inactive';
+
+                try {
+                    const response = await fetch(`/admin/subcategories/${id}/toggle-status`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ status })
+                    });
+
+                    const data = await response.json();
+                    if (!data.success) throw new Error(data.error || 'Failed to update status');
+
+                    const label = e.target.nextElementSibling;
+                    label.textContent = status;
+                } catch (error) {
+                    alert(error.message || 'Failed to update status');
+                    e.target.checked = !e.target.checked;
+                }
+            });
+        });
+
+        function attachRowHandlers(row) {
+            // Edit button
+            const editBtn = row.querySelector('.edit-btn');
+            if (editBtn) {
+                editBtn.addEventListener('click', () => {
+                    const form = document.getElementById('editSubcategoryForm');
+                    form.id.value = editBtn.dataset.id;
+                    form.name.value = editBtn.dataset.name;
+                    form.category_id.value = editBtn.dataset.category;
+                    new bootstrap.Modal(document.getElementById('editSubcategoryModal')).show();
+                });
+            }
+
+            // Status toggle
+            const toggle = row.querySelector('.status-toggle');
+            if (toggle) {
+                toggle.addEventListener('change', async (e) => {
+                    const id = e.target.dataset.id;
+                    const status = e.target.checked ? 'active' : 'inactive';
+                    try {
+                        const response = await fetch(`/admin/subcategories/${id}/toggle-status`, {
+                            method: 'PUT',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ status })
+                        });
+                        const data = await response.json();
+                        if (!data.success) throw new Error(data.error || 'Failed to update status');
+                        const label = e.target.nextElementSibling;
+                        label.textContent = status;
+                    } catch (error) {
+                        alert(error.message || 'Failed to update status');
+                        e.target.checked = !e.target.checked;
+                    }
+                });
+            }
+
+            // Delete
+            const delBtn = row.querySelector('.delete-btn');
+            if (delBtn) {
+                delBtn.addEventListener('click', async () => {
+                    if (confirm('Are you sure you want to delete this subcategory?')) {
+                        const id = delBtn.dataset.id;
+                        try {
+                            const response = await fetch(`/admin/subcategories/${id}`, { method: 'DELETE' });
+                            const data = await response.json();
+                            if (data.success) {
+                                row.remove();
+                            } else {
+                                alert(data.error || 'Failed to delete subcategory');
+                            }
+                        } catch (error) {
+                            alert('Failed to delete subcategory');
+                        }
+                    }
+                });
+            }
+        }
+
+        // Attach handlers to existing rows on load
+        document.querySelectorAll('table tbody tr').forEach(attachRowHandlers);
+    </script>
+</body>
+</html>
