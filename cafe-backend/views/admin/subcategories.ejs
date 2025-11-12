@@ -183,7 +183,7 @@
                         ? (sc.image.startsWith('/') ? sc.image : `/uploads/subcategories/${sc.image}`)
                         : '';
                     row.innerHTML = `
-                        <td>${sc.id ?? ''}</td>
+                        
                         <td>${sc.name ?? addNameValue}</td>
                         <td>${sc.category_name ?? ''}</td>
                         <td>${sc.created_at ? new Date(sc.created_at).toLocaleDateString() : new Date().toLocaleDateString()}</td>

@@ -246,25 +246,25 @@
     <script>
         // Add category
         // Remove this block
-        document.getElementById('saveCategory').addEventListener('click', async () => {
-            const form = document.getElementById('addCategoryForm');
-            const name = form.name.value;
+        // document.getElementById('saveCategory').addEventListener('click', async () => {
+        //     const form = document.getElementById('addCategoryForm');
+        //     const name = form.name.value;
         
-            try {
-                const response = await fetch('/admin/categories', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name })
-                });
+        //     try {
+        //         const response = await fetch('/admin/categories', {
+        //             method: 'POST',
+        //             headers: { 'Content-Type': 'application/json' },
+        //             body: JSON.stringify({ name })
+        //         });
         
-                const data = await response.json();
-                if (data.success) {
-                    location.reload();
-                }
-            } catch (error) {
-                alert('Failed to add category');
-            }
-        });
+        //         const data = await response.json();
+        //         if (data.success) {
+        //             location.reload();
+        //         }
+        //     } catch (error) {
+        //         alert('Failed to add category');
+        //     }
+        // });
         
         // Keep only this block
         document.getElementById('saveCategory').addEventListener('click', async () => {

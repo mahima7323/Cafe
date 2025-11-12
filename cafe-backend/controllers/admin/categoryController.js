@@ -19,6 +19,17 @@ const categoryController = {
         });
     },
 
+    getAllCategories: (req, res) => {
+    const sql = 'SELECT id, name, image, status FROM categories WHERE is_deleted = 0 ORDER BY id DESC';
+    db.query(sql, (err, results) => {
+        if (err) {
+            console.error('Database error:', err);
+            return res.status(500).json({ error: 'Database error occurred' });
+        }
+        res.json(results); // Send JSON response
+    });
+    },
+
     addCategory: (req, res) => {
         const { name, status } = req.body;
         const image = req.file ? `/uploads/categories/${req.file.filename}` : null;

@@ -61,4 +61,6 @@ router.get('/stats', async (req, res) => {
 // Users management route (list only)
 router.get('/users', isAdmin, adminController.users);
 
+router.get('/api/categories', categoryController.getAllCategories);
+
 module.exports = router;
