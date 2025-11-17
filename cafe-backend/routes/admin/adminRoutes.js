@@ -6,7 +6,9 @@ const adminController = require('../../controllers/admin/adminController');
 const categoryController = require('../../controllers/admin/categoryController');
 const subcategoryController = require('../../controllers/admin/subcategoryController');
 const itemsController = require('../../controllers/admin/itemsController');
+const cartController = require('../../controllers/admin/cartController');
 const db = require('../../config/db');
+console.log("Admin routes loaded");
 
 // Admin authentication routes
 router.get('/login', adminController.loginPage);
@@ -31,7 +33,7 @@ router.delete('/categories/:id', isAdmin, categoryController.deleteCategory);
 router.put('/categories/:id/toggle-status', isAdmin, categoryController.toggleStatus);
 
 // Add these routes with your existing routes
-router.get('/subcategories', isAdmin, subcategoryController.showSubcategories);
+// router.get('/subcategories', isAdmin, subcategoryController.showSubcategories);
 router.post('/subcategories', isAdmin, upload.single('image'), subcategoryController.addSubcategory);
 router.put('/subcategories/:id', isAdmin, upload.single('image'), subcategoryController.updateSubcategory);
 router.put('/subcategories/:id/toggle-status', isAdmin, subcategoryController.toggleStatus);
@@ -62,5 +64,17 @@ router.get('/stats', async (req, res) => {
 router.get('/users', isAdmin, adminController.users);
 
 router.get('/api/categories', categoryController.getAllCategories);
+router.get('/api/subcategories', subcategoryController.getAllSubcategories);
+router.get('/subcategories', isAdmin, subcategoryController.showSubcategories);
+router.get("/items", itemsController.getItemsBySubcategory);
+router.get("/api/items", itemsController.getItemsBySubcategory);
+router.get("/admin/api/items", itemsController.getItemsBySubcategory);
+
+// Cart routes
+router.post('/cart/add', cartController.addToCart);
+router.get('/cart', cartController.getCart);
+router.post('/cart/update', cartController.updateQuantity);
+router.post('/cart/remove', cartController.removeItem);
+router.post('/cart/clear', cartController.clearCart);
 
 module.exports = router;

@@ -6,6 +6,7 @@ const db = require('./config/db');
 const session = require('express-session');
 const path = require('path');
 const fs = require('fs');
+const logger = require('morgan');
 
 const app = express();
 
@@ -37,6 +38,7 @@ app.use('/uploads/categories', express.static(path.join(__dirname, 'public/uploa
 app.use('/uploads/items', express.static(path.join(__dirname, 'public/uploads/items')));
 
 // Set EJS as templating engine
+app.use(logger('dev'));
 app.set('view engine', 'ejs');
 app.set('views', './views');
 

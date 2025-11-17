@@ -92,6 +92,36 @@ update: (req, res) => {
     });
 },
 
+getItemsBySubcategory: (req, res) => {
+    const subcategoryId = req.query.subcategoryId;
+
+    if (!subcategoryId) {
+        return res.status(400).json({ error: "subcategoryId is required" });
+    }
+    
+    const sql = `
+        SELECT items.*, 
+               subcategories.name AS subcategory_name,
+               categories.name AS category_name
+        FROM items
+        JOIN subcategories ON items.subcategory_id = subcategories.id
+        JOIN categories ON subcategories.category_id = categories.id
+        WHERE items.subcategory_id = ?
+          AND items.is_deleted = FALSE
+        ORDER BY items.id DESC
+    `;
+
+    db.query(sql, [subcategoryId], (err, results) => {
+        if (err) {
+            console.error("Database error:", err);
+            return res.status(500).json({ message: "Database error" });
+        }
+
+        res.json(results);
+    });
+},
+
+
     toggleStatus: (req, res) => {
         const { id } = req.params;
         const { status } = req.body;

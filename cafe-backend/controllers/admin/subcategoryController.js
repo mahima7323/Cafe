@@ -43,6 +43,23 @@ const subcategoryController = {
         });
     },
 
+    getAllSubcategories: (req, res) => {
+        // console.log('req.qery:', req.query);
+    const perentCategory = req.query.categoryId;
+
+    const sql = `SELECT * FROM subcategories WHERE is_deleted = FALSE AND category_id = ${perentCategory} ORDER BY id DESC`;
+
+    db.query(sql, (err, results) => {
+        if (err) {
+            console.error("Database error:", err);
+            return res.status(500).json({ message: "Database error" });
+        }
+
+        res.json(results);
+    });
+},
+
+
     addSubcategory: (req, res) => {
         const { name, category_id } = req.body;
         const image = req.file ? `/uploads/subcategories/${req.file.filename}` : null;
